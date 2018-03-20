@@ -21,6 +21,7 @@ TagManager:
   - RespawnInside
   - SmallZone
   - BigZone
+  - Tag
   layers:
   - Default
   - TransparentFX
@@ -42,7 +43,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - Ignore
   - 
   - 
   - 

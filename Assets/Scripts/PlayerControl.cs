@@ -8,6 +8,9 @@ public class PlayerControl : MonoBehaviour
 	[HideInInspector]
 	public bool jump = false;				// Condition for whether the player should jump.
 
+    public bool hasKey1 = false;
+    public bool hasKey2 = false;
+
     public bool swap = false;               // Should Character witch inside/outside
     public bool location = true;            // True = outside / False = inside
     public bool firstSwap = true;           // 
@@ -25,6 +28,8 @@ public class PlayerControl : MonoBehaviour
 	public float maxSpeed = 5f;				// The fastest the player can travel in the x axis.
 	public AudioClip[] jumpClips;			// Array of clips for when the player jumps.
 	public float jumpForce = 1000f;			// Amount of force added when the player jumps.
+    public float jumpForceBig = 1000f;
+    public float currentJumpForce;
 	public AudioClip[] taunts;				// Array of clips for when the player taunts.
 	public float tauntProbability = 50f;	// Chance of a taunt happening.
 	public float tauntDelay = 1f;			// Delay for when the taunt should happen.
@@ -35,6 +40,7 @@ public class PlayerControl : MonoBehaviour
 	private Animator anim;					// Reference to the player's animator component.
     private float cameraPositionZ;
 
+    public bool goingIn = false;
 
 	void Awake()
 	{
@@ -48,9 +54,20 @@ public class PlayerControl : MonoBehaviour
     {
         velocityCurrent = GetComponent<Rigidbody2D>().velocity;
         anim.ResetTrigger("Jump");
+        anim.ResetTrigger("IN");
+        anim.ResetTrigger("OUT");
 
         // The player is grounded if a linecast to the groundcheck position hits anything on the ground layer.
-        grounded = Physics2D.BoxCast(transform.position, new Vector2(2f, 1f), 0f, Vector2.down, 2f, 1 << LayerMask.NameToLayer("Ground"));
+        if (Mathf.Abs(transform.localScale.x) > 2f)
+        {
+            currentJumpForce = jumpForceBig;
+            grounded = Physics2D.BoxCast(transform.position, new Vector2(2f, 1f), 0f, Vector2.down, 3.3f, 1 << LayerMask.NameToLayer("Ground"));
+        }
+        else
+        {
+            currentJumpForce = jumpForce;
+            grounded = Physics2D.BoxCast(transform.position, new Vector2(2f, 1f), 0f, Vector2.down, 1.5f, 1 << LayerMask.NameToLayer("Ground"));
+        }
 
         if (grounded) anim.SetBool("IsFalling", false);
 
@@ -68,10 +85,27 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
+    void FixedUpdate()
+    {
+        //RaycastHit2D hit = Physics2D.Raycast(transform.position, -transform.up, 5f, 1 << LayerMask.NameToLayer("Ground"));
+        //if (hit)
+        //{
+        //    Debug.DrawRay(hit.point, hit.normal, Color.red);
+        //    Debug.Log(hit.normal);
+        //    Quaternion targetRotation = transform.rotation;
+        //    Vector3 direction = new Vector3(hit.normal.x, hit.normal.y, 0f);
+        //    //direction.x = 0;
+        //    if (direction != Vector3.zero) targetRotation = Quaternion.LookRotation(direction);
+        //    targetRotation.x = 0;
+        //    targetRotation.y = 0;
+        //    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 20f * Time.deltaTime);
+        //    Debug.Log(transform.rotation);
+        //}
+        //else
+        //{
+        //    transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+        //}
 
-
-	void FixedUpdate ()
-	{
         // Swap between Outside/Inside
         if (swap)
         {
@@ -81,41 +115,50 @@ public class PlayerControl : MonoBehaviour
                 location = false;
             }
             swap = false;
-
-            // To Inside
-            if (location) 
+            //anim.GetCurrentAnimatorStateInfo(0).IsName("Main.IN")
+            if (goingIn)
             {
-                // Save Outside velocity
-                velocityInside = GetComponent<Rigidbody2D>().velocity;
-                // Save Outside position
-                spawnOutside.transform.position = transform.position;
-                // Move camera to prevent blur
-                mainCamera.transform.position = new Vector3(spawnInside.transform.position.x, spawnInside.transform.position.y, cameraPositionZ);       
-                // Inside
-                location = false;
-                // Apply Inside velocity
-                GetComponent<Rigidbody2D>().AddForce(velocityOutside * moveForce * 0.1f ,ForceMode2D.Force);
-                // Move player to Inside position
-                transform.position = spawnInside.transform.position;                                                                        
+                Debug.Log("Baby");
             }
+            else
+            {
+                // To Inside
+                if (location)
+                {
+                    anim.SetTrigger("OUT");
+                    // Save Outside velocity
+                    velocityInside = GetComponent<Rigidbody2D>().velocity;
+                    // Save Outside position
+                    spawnOutside.transform.position = transform.position;
+                    // Move camera to prevent blur
+                    mainCamera.transform.position = new Vector3(spawnInside.transform.position.x, spawnInside.transform.position.y, cameraPositionZ);
+                    // Inside
+                    location = false;
+                    // Apply Inside velocity
+                    GetComponent<Rigidbody2D>().AddForce(velocityOutside * moveForce * 0.1f, ForceMode2D.Force);
+                    // Move player to Inside position
+                    transform.position = spawnInside.transform.position;
+                }
+
+                // To Outside
+                else
+                {
+                    // Save Inside veloctiy
+                    velocityOutside = GetComponent<Rigidbody2D>().velocity;
+                    // Save Inside position
+                    spawnInside.transform.position = transform.position;
+                    // Move camera to prevent blur
+                    mainCamera.transform.position = new Vector3(spawnOutside.transform.position.x, spawnOutside.transform.position.y, cameraPositionZ);
+                    // Outside
+                    location = true;
+                    // Apply Outside velocity
+                    GetComponent<Rigidbody2D>().AddForce(velocityInside * moveForce * 0.1f, ForceMode2D.Force);
+                    // Move player to Outside position
+                    transform.position = spawnOutside.transform.position;
+                }
+            }
+
             
-            // To Outside
-            else  
-            {
-                // Save Inside veloctiy
-                velocityOutside = GetComponent<Rigidbody2D>().velocity;
-                // Save Inside position
-                spawnInside.transform.position = transform.position;     
-                // Move camera to prevent blur
-                mainCamera.transform.position = new Vector3 (spawnOutside.transform.position.x, spawnOutside.transform.position.y, cameraPositionZ);    
-                // Outside
-                location = true;
-                // Apply Outside velocity
-                GetComponent<Rigidbody2D>().AddForce(velocityInside * moveForce * 0.1f, ForceMode2D.Force);
-                // Move player to Outside position
-                transform.position = spawnOutside.transform.position;
-
-            }
 
             GetComponent<Rigidbody2D>().velocity = Vector3.zero;
         }
@@ -163,7 +206,7 @@ public class PlayerControl : MonoBehaviour
 		    	AudioSource.PlayClipAtPoint(jumpClips[i], transform.position);
 
 		    	// Add a vertical force to the player.
-		    	GetComponent<Rigidbody2D>().AddForce(new Vector2(0f, jumpForce));
+		    	GetComponent<Rigidbody2D>().AddForce(new Vector2(0f, currentJumpForce));
 
 		    	// Make sure the player can't jump again until the jump conditions from Update are satisfied.
 		    	jump = false;
@@ -223,8 +266,14 @@ public class PlayerControl : MonoBehaviour
 		}
 	}
 
+    IEnumerator Wait()
+    {
+        anim.SetTrigger("IN");
+        //yield return StartCoroutine(anim.GetCurrentAnimatorStateInfo(0).IsName("IN"));
+        yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length + anim.GetCurrentAnimatorStateInfo(0).normalizedTime);
+    }
 
-	int TauntRandom()
+    int TauntRandom()
 	{
 		// Choose a random index of the taunts array.
 		int i = Random.Range(0, taunts.Length);

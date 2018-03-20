@@ -173,7 +173,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 21494498}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -17.81, y: -4.87, z: 0}
+  m_LocalPosition: {x: -17.81, y: -5.26, z: 0}
   m_LocalScale: {x: 8.23194, y: 1.80161, z: 1.80161}
   m_Children: []
   m_Father: {fileID: 13055866}
@@ -2270,6 +2270,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: fc55d077383484ac0ad66aa17fcd746f, type: 3}
   - {fileID: 8300000, guid: dafa1cc4eb8714341a7c595abfba35d8, type: 3}
   jumpForce: 2500
+  jumpForceBig: 3000
+  currentJumpForce: 0
   taunts:
   - {fileID: 8300000, guid: 27cbebf9d650249e5b032494eae5322c, type: 3}
   - {fileID: 8300000, guid: 986fa1b8984964da79d1be0597332fb2, type: 3}
@@ -3952,7 +3954,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 708593027}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -11.9, y: 2.5, z: -0.125}
+  m_LocalPosition: {x: -7.24, y: 2.5, z: -0.125}
   m_LocalScale: {x: 6.753522, y: 5.04656, z: 1}
   m_Children: []
   m_Father: {fileID: 1031621847}
@@ -7733,7 +7735,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1575687138}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -58.884, y: -5.07, z: 0}
+  m_LocalPosition: {x: -58.884, y: -5.27, z: 0}
   m_LocalScale: {x: 32.5809, y: 1.8016125, z: 1.8016125}
   m_Children: []
   m_Father: {fileID: 13055866}
